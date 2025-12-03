@@ -1,3 +1,7 @@
+### Changelog 1.1.0
+- Added page-specific syncing to arbitrary GitHub files with context menu actions.
+- Added GitHub token setting and modal for configuring per-page targets.
+
 ### Changelog 1.0.6
 - Plugin loads faster on start up
 
@@ -20,6 +24,9 @@ Simple plugin that allows you to sync your vault to a personal GitHub repo for *
 ## How to Use
 Click the **Sync with Remote** ribbon icon to pull changes from your GitHub repo and push local changes. 
 If there are any conflicts, the unmerged files will be opened for you to resolve (or just push again with the unresolved conflicts - that should work too).
+
+### Page specific sync targets
+Need to publish an individual note to a completely different repository (or path) from the rest of your vault? Use the three-dot page menu in the file explorer or editor and choose **Set GitHub sync target**. Paste a GitHub file URL such as `https://github.com/user/repo/blob/main/docs/file.md` and save it. Once configured, the same page menu exposes **Sync page to GitHub**, which uses the GitHub API to upsert the note to that file (and repo/branch). Per-page syncing requires a personal access token with the proper scopes (repo for private repos) configured in the plugin settings.
 
 ## Setup
 
@@ -58,6 +65,8 @@ The first time may prompt you to authenticate if you haven't, or it may ask you 
 
 If your git binary is not accessible from your system PATH (i.e. if you open up Command Prompt or Terminal and can't use git), you need to provide its location. I initialize git only when launching Cmder, so I need to input a custom path like so: `C:/Users/Kevin/scoop/apps/cmder-full/current/vendor/git-for-windows/cmd/`. Note that I excluded `git.exe` from the end of the path.
 
+To enable page specific syncing you also need to create a GitHub personal access token (fine-grained or classic) and add it to the plugin settings. The token is only used to call `PUT /repos/{owner}/{repo}/contents/{path}` when manually syncing a page.
+
 You can also include your GitHub username and personal access token in the remote url. Like so: `https://{username}:{personal access token}@github.com/{username}/{repository name}`. This is not recommended anymore, but it was how the plugin worked prior to 1.0.4. If you're doing this, you'll have to add `.obsidian/plugins/github-sync/data.json` to your `.gitignore`. See: https://github.com/kevinmkchin/Obsidian-GitHub-Sync/issues/2#issuecomment-2168384792.
 
 ## Rationale
@@ -70,4 +79,3 @@ The Node API used by this plugin works with any remote host, but I use GitHub so
 Mobile support could come in the future depending on how much I need it myself.
 
 Follow my stuff at https://kevin.gd/
-
