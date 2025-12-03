@@ -1,81 +1,58 @@
-### Changelog 1.1.0
-- Added page-specific syncing to arbitrary GitHub files with context menu actions.
-- Added GitHub token setting and modal for configuring per-page targets.
+# GitHub Page Sync
 
-### Changelog 1.0.6
-- Plugin loads faster on start up
-
-### Changelog 1.0.5
-- Added option to automatically sync on start up if behind remote
-- Added "Sync with Remote" command to command palette
-
-### Changelog 1.0.4
-- Simplified setup process.
-- Allow SSH url for remote.
-
-![](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22github-sync%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
-
-# GitHub Sync
-
-Simple plugin that allows you to sync your vault to a personal GitHub repo for **syncing across devices**.
+Sync individual Obsidian notes to specific GitHub repositories and file paths using the GitHub API.
 
 ![](screenshots/ribbon-button.png)
 
-## How to Use
-Click the **Sync with Remote** ribbon icon to pull changes from your GitHub repo and push local changes. 
-If there are any conflicts, the unmerged files will be opened for you to resolve (or just push again with the unresolved conflicts - that should work too).
+## Motivation
 
-### Page specific sync targets
-Need to publish an individual note to a completely different repository (or path) from the rest of your vault? Use the three-dot page menu in the file explorer or editor and choose **Set GitHub sync target**. Paste a GitHub file URL such as `https://github.com/user/repo/blob/main/docs/file.md` and save it. Once configured, the same page menu exposes **Sync page to GitHub**, which uses the GitHub API to upsert the note to that file (and repo/branch). Per-page syncing requires a personal access token with the proper scopes (repo for private repos) configured in the plugin settings.
+This is NOT the excellent Obsidian Vault to Github sync plugin written by Kevin Chin (that this was a fork from).
+This plugin is designed to let you sync individual pages in your vault to individual files in potentially different Github repos.
+I wanted this functionality because I use Obsidian to track my actions on different projects that are linked to different Github repositories.
+The repos contain other information that is not in Obsidian, but any content that I updated regularly and is text based is much more easily managed in Obsidian. If, like me, you want to track your activities fro one portal - an Obsidian Vault - but have those activites sync'ed to many different Github repos, then this plugin is for you! 
+
+## How to Use
+
+This plugin allows you to sync individual notes to GitHub files. Each note can be configured to sync to a different repository and location.
+
+### Setting up sync targets
+
+1. Right-click on a note in the file explorer or editor
+2. Select **Set GitHub sync target**
+3. Paste a GitHub file URL such as `https://github.com/user/repo/blob/main/docs/file.md`
+4. Click **Save target**
+
+### Syncing your notes
+
+Click the **Sync to GitHub** ribbon icon (or use the command palette) to sync all notes that have configured GitHub sync targets. The plugin will:
+- Upload the current content of each targeted note to its configured GitHub location
+- Create or update the file as needed
+- Show a summary of successful and failed syncs
 
 ## Setup
 
-### Setting up a GitHub repo
-If your vault is already set up as a GitHub repository, you can skip this step. Otherwise, create a new public or private GitHub repository that you want to use for your vault.
+### Prerequisites
 
-Navigate to your vault and `git init` the folder. 
-At this point, add anything you don't want syncing across your devices to a `.gitignore`.
+You need a GitHub personal access token to use this plugin:
 
-This is not required, but you should try pushing your vault to your GitHub repository before continuing to make sure you can do that in the first place before using this plugin:
-```
-git add .
-git commit -m "my obsidian vault first commit"
-git branch -M main
-git remote add origin <remote-url>
-git push -u origin main
-```
-Verify that this works before continuing.
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token" (classic or fine-grained)
+3. For classic tokens, grant the `repo` scope
+4. For fine-grained tokens, grant `Contents: Read and write` permission
+5. Copy your token
 
-> For simplicity, this plugin does not support branching. Everything gets pushed to main.
+### Configuring the plugin
 
-### Setting up remote URL
-All this plugin needs now is your GitHub repo's remote URL. You can grab this from the GitHub repo page for your vault:
+1. Open Obsidian Settings → Community plugins → GitHub Page Sync
+2. Paste your GitHub personal access token in the settings
+3. (Optional) Enable "Auto sync on startup" to sync all targeted files when Obsidian opens
+4. (Optional) Set an "Auto sync at interval" to sync regularly (in minutes)
 
-![](screenshots/remote-url.png)
+You can view all your configured sync targets in the "Configured Sync Targets" table at the bottom of the plugin settings.
 
-You can use either the HTTPS or SSH url. Grab it and paste it in the GitHub Sync settings tab like so:
+## How it works
 
-![](screenshots/new-settings-page.png)
-
-Done. Try clicking the Sync button now - it should work.
-
-The first time may prompt you to authenticate if you haven't, or it may ask you to configure git with your email and name.
-
-### Optional
-
-If your git binary is not accessible from your system PATH (i.e. if you open up Command Prompt or Terminal and can't use git), you need to provide its location. I initialize git only when launching Cmder, so I need to input a custom path like so: `C:/Users/Kevin/scoop/apps/cmder-full/current/vendor/git-for-windows/cmd/`. Note that I excluded `git.exe` from the end of the path.
-
-To enable page specific syncing you also need to create a GitHub personal access token (fine-grained or classic) and add it to the plugin settings. The token is only used to call `PUT /repos/{owner}/{repo}/contents/{path}` when manually syncing a page.
-
-You can also include your GitHub username and personal access token in the remote url. Like so: `https://{username}:{personal access token}@github.com/{username}/{repository name}`. This is not recommended anymore, but it was how the plugin worked prior to 1.0.4. If you're doing this, you'll have to add `.obsidian/plugins/github-sync/data.json` to your `.gitignore`. See: https://github.com/kevinmkchin/Obsidian-GitHub-Sync/issues/2#issuecomment-2168384792.
-
-## Rationale
-
-This plugin is for personal use, but I figured others might find it useful too. This is basically a glorified script - the code is tiny its like ~200 SLOC.
-I keep a private GitHub repository for my Markdown notes, and I wanted some way to pull/push my notes from within Obsidian without opening a command line to run a script or set up an auto sync script on a timer. I don't use Git branches for my notes so this plugin doesn't support branching. 
-
-The Node API used by this plugin works with any remote host, but I use GitHub so I centered the whole plugin around that.
-
-Mobile support could come in the future depending on how much I need it myself.
-
-Follow my stuff at https://kevin.gd/
+- Each note can have its own GitHub sync target (repository and file path)
+- Syncing only affects notes that have been configured with a target
+- The GitHub API is used to create or update files, so no local Git installation is required
+- Your GitHub personal access token is stored locally in your Obsidian plugin data

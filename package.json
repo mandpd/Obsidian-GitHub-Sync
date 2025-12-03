@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-github-pagesync",
-	"version": "1.1.0",
-	"description": "Sync vault to personal GitHub.",
+	"version": "0.1.0",
+	"description": "Sync pages in your vault to pages in GitHub repos.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
